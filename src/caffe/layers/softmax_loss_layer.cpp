@@ -85,17 +85,11 @@ void SoftmaxWithLossLayer<Dtype>::Forward_cpu(
       }else {
         LOG(FATAL)<<"UNKNOWN TARGET TYPE!";
       }
-      //
-      //////////
-      //loss -= log(std::max(prob_data[i * dim + label_value * inner_num_ + j],
-      //                     Dtype(FLT_MIN)));
-      //////////
       ++count;
     }
     pos_loss += temp_pos_loss;
     neg_loss += temp_neg_loss;
   }
-  //if(isnan(loss))LOG(WARNING)<<"LOSS NAN AT softmaxLossLayer!";
   pos_loss = pos_loss * count_neg / (count_pos + count_neg);
   neg_loss = neg_loss * count_pos / (count_pos + count_neg);
   loss = pos_loss + neg_loss;
@@ -145,7 +139,7 @@ if (propagate_down[0]) {
                 }
             }else {
                 for(int ch = 0;ch < nch;ch++){
-                	// formulation of loss partial-derivative computation are here: http://zhaok.xyz/docs/biased_softmax.pdf
+                    // formulation of loss partial-derivative computation are here: http://zhaok.xyz/docs/biased_softmax.pdf
                     if (label_value == ch)
                     	bottom_diff[i * dim + ch * inner_num_ + j] = -b[label_value != 0] * (1 - bottom_diff[i * dim + ch * inner_num_ + j]);
                     else
