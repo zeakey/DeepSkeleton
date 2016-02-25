@@ -145,8 +145,12 @@ if (propagate_down[0]) {
                 }
             }else {
                 for(int ch = 0;ch < nch;ch++){
-                    bottom_diff[i * dim + ch * inner_num_ + j] = 
-                        -(b[label_value != 0] * (label_value == ch) - b[label_value != 0] * bottom_diff[i * dim + ch * inner_num_ + j]);
+                    // bottom_diff[i * dim + ch * inner_num_ + j] = 
+                    //     -(b[label_value != 0] * (label_value == ch) - b[label_value != 0] * bottom_diff[i * dim + ch * inner_num_ + j]);
+                    if (label_value == ch)
+                    	bottom_diff[i * dim + ch * inner_num_ + j] = -b[label_value != 0] * (1 - bottom_diff[i * dim + ch * inner_num_ + j]);
+                    else
+                    	bottom_diff[i * dim + ch * inner_num_ + j] = +b[label_value != 0] * bottom_diff[i * dim + ch * inner_num_ + j];
                 }
             }
         }
