@@ -17,7 +17,7 @@ code for our [CVPR2016](http://cvpr2016.thecvf.com/) paper "**Object Skeleton Ex
 
 * Our new dataset [*SK506*](http://7xocv2.dl1.z0.glb.clouddn.com/sk506.tar.gz)
 
-More technical details pls refer to our [paper](http://arxiv.org/abs/1603.09446)
+More detaily guidence for the code please go to the project page at <http://zhaok.xyz/project/deep-skeleton/>
 
 Code base on [*caffe*](http://caffe.berkeleyvision.org/)
 
