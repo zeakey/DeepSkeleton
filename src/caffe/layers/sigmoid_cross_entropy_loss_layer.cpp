@@ -46,31 +46,30 @@ void SigmoidCrossEntropyLossLayer<Dtype>::Forward_cpu(
   Dtype temp_loss_neg = 0;
   Dtype count_pos = 0;
   Dtype count_neg = 0;
-  Dtype temp_target = 0;
+
   int dim = bottom[0]->count() / bottom[0]->num();
   for (int i = 0; i < num; ++i) {
       temp_loss_pos = 0;
       temp_loss_neg = 0;
+      count_pos = 0;
+      count_neg = 0;
       for (int j = 0; j < dim; j ++) {
-         if (target[i*dim+j] >= l_thres && target[i*dim+j] < r_thres) {
-          temp_target = 1;
-        	count_pos ++;
-        	temp_loss_pos -= input_data[i*dim + j] * (temp_target - (input_data[i*dim + j] >= 0)) -
-                	log(1 + exp(input_data[i*dim + j] - 2 * input_data[i*dim + j] * (input_data[i*dim + j] >= 0)));
-    	}
-    	else if (target[i*dim+j] >= r_thres || target[i*dim+j] < l_thres) {
-          temp_target = 0;
-        	count_neg ++;
-        	temp_loss_neg -= input_data[i*dim + j] * (temp_target - (input_data[i*dim + j] >= 0)) -
-                	log(1 + exp(input_data[i*dim + j] - 2 * input_data[i*dim + j] * (input_data[i*dim + j] >= 0)));
-    	}else{
-        LOG(FATAL)<<"UNKOWN TARGET!";
+         if (target[i*dim+j] == 1) {
+          count_pos ++;
+          temp_loss_pos -= input_data[i*dim + j] * (target[i*dim+j] - (input_data[i*dim + j] >= 0)) -
+                  log(1 + exp(input_data[i*dim + j] - 2 * input_data[i*dim + j] * (input_data[i*dim + j] >= 0)));
+      }
+      else if (target[i*dim+j] == 0) {
+          count_neg ++;
+          temp_loss_neg -= input_data[i*dim + j] * (target[i*dim+j] - (input_data[i*dim + j] >= 0)) -
+                  log(1 + exp(input_data[i*dim + j] - 2 * input_data[i*dim + j] * (input_data[i*dim + j] >= 0)));
       }
      } 
      loss_pos += temp_loss_pos * count_neg / (count_pos + count_neg);
      loss_neg += temp_loss_neg * count_pos / (count_pos + count_neg);
   }
   top[0]->mutable_cpu_data()[0] = (loss_pos * 1 + loss_neg) / num;
+  //LOG(INFO)<<"loss_pos="<<loss_pos<<", loss_neg="<<loss_neg<<", count_pos="<<count_pos<<", LOSS="<<top[0]->cpu_data()[0];
 }
 
 template <typename Dtype>
@@ -88,36 +87,30 @@ void SigmoidCrossEntropyLossLayer<Dtype>::Backward_cpu(
     const Dtype* sigmoid_output_data = sigmoid_output_->cpu_data();
     const Dtype* target = bottom[1]->cpu_data();
     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-    //caffe_sub(count, sigmoid_output_data, target, bottom_diff);
-    for(int i = 0;i < count;i++){
-      bottom_diff[i] = sigmoid_output_data[i] - 
-                       ((target[i] >= l_thres) && (target[i] < r_thres));
-    }
+    caffe_sub(count, sigmoid_output_data, target, bottom_diff);
     Dtype count_pos = 0;
     Dtype count_neg = 0;
     int dim = bottom[0]->count() / bottom[0]->num();
 
     for (int i = 0; i < num; ++i) {
-    	count_pos = 0;
-    	count_neg = 0;
-    	for (int j = 0; j < dim; j ++) {
-           	if (target[i*dim+j] >= l_thres && target[i*dim+j] < r_thres) {
-                	count_pos ++;
-        	}
-        	else if (target[i*dim+j] < l_thres || target[i*dim+j] >= r_thres) {
-                	count_neg ++;
-        	}else{
-            LOG(FATAL)<<"UNKOWN TARGET!";
+      count_pos = 0;
+      count_neg = 0;
+      for (int j = 0; j < dim; j ++) {
+            if (target[i*dim+j] == 1) {
+                  count_pos ++;
           }
-     	}
-    	for (int j = 0; j < dim; j ++) {
-        	if (target[i*dim+j] == 1) {
-               		bottom_diff[i * dim + j] *= 1 * count_neg / (count_pos + count_neg);
-        	}
-        	else if (target[i*dim+j] == 0) {
-                	bottom_diff[i * dim + j] *= count_pos / (count_pos + count_neg);
-        	}
-     	}
+          else if (target[i*dim+j] == 0) {
+                  count_neg ++;
+          }
+      }
+      for (int j = 0; j < dim; j ++) {
+          if (target[i*dim+j] == 1) {
+                  bottom_diff[i * dim + j] *= 1 * count_neg / (count_pos + count_neg);
+          }
+          else if (target[i*dim+j] == 0) {
+                  bottom_diff[i * dim + j] *= count_pos / (count_pos + count_neg);
+          }
+      }
     }
     const Dtype loss_weight = top [0]->cpu_diff()[0];
     caffe_scal(count, loss_weight / num, bottom_diff);
@@ -125,7 +118,7 @@ void SigmoidCrossEntropyLossLayer<Dtype>::Backward_cpu(
 }
 
 #ifdef CPU_ONLY
-//STUB_GPU_BACKWARD(SigmoidCrossEntropyLossLayer, Backward);
+STUB_GPU_BACKWARD(SigmoidCrossEntropyLossLayer, Backward);
 #endif
 
 INSTANTIATE_CLASS(SigmoidCrossEntropyLossLayer);
