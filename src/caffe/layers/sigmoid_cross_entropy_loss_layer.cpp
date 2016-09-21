@@ -54,19 +54,18 @@ void SigmoidCrossEntropyLossLayer<Dtype>::Forward_cpu(
       count_pos = 0;
       count_neg = 0;
       for (int j = 0; j < dim; j ++) {
-         if (target[i*dim+j] == 1) {
+         if (target[i*dim+j] != 0) {
           count_pos ++;
           temp_loss_pos -= input_data[i*dim + j] * (target[i*dim+j] - (input_data[i*dim + j] >= 0)) -
                   log(1 + exp(input_data[i*dim + j] - 2 * input_data[i*dim + j] * (input_data[i*dim + j] >= 0)));
-      }
-      else if (target[i*dim+j] == 0) {
+        } else {
           count_neg ++;
           temp_loss_neg -= input_data[i*dim + j] * (target[i*dim+j] - (input_data[i*dim + j] >= 0)) -
                   log(1 + exp(input_data[i*dim + j] - 2 * input_data[i*dim + j] * (input_data[i*dim + j] >= 0)));
-      }
-     } 
-     loss_pos += temp_loss_pos * count_neg / (count_pos + count_neg);
-     loss_neg += temp_loss_neg * count_pos / (count_pos + count_neg);
+        }
+      } 
+      loss_pos += temp_loss_pos * count_neg / (count_pos + count_neg);
+      loss_neg += temp_loss_neg * count_pos / (count_pos + count_neg);
   }
   top[0]->mutable_cpu_data()[0] = (loss_pos * 1 + loss_neg) / num;
   //LOG(INFO)<<"loss_pos="<<loss_pos<<", loss_neg="<<loss_neg<<", count_pos="<<count_pos<<", LOSS="<<top[0]->cpu_data()[0];
@@ -95,21 +94,13 @@ void SigmoidCrossEntropyLossLayer<Dtype>::Backward_cpu(
     for (int i = 0; i < num; ++i) {
       count_pos = 0;
       count_neg = 0;
+      for (int j = 0; j < dim; j ++)
+        if (target[i*dim+j] != 0)count_pos ++;else count_neg ++;
       for (int j = 0; j < dim; j ++) {
-            if (target[i*dim+j] == 1) {
-                  count_pos ++;
-          }
-          else if (target[i*dim+j] == 0) {
-                  count_neg ++;
-          }
-      }
-      for (int j = 0; j < dim; j ++) {
-          if (target[i*dim+j] == 1) {
-                  bottom_diff[i * dim + j] *= 1 * count_neg / (count_pos + count_neg);
-          }
-          else if (target[i*dim+j] == 0) {
-                  bottom_diff[i * dim + j] *= count_pos / (count_pos + count_neg);
-          }
+        if (target[i*dim+j] != 0)
+          bottom_diff[i * dim + j] *= 1 * count_neg / (count_pos + count_neg);
+        else
+          bottom_diff[i * dim + j] *= count_pos / (count_pos + count_neg);
       }
     }
     const Dtype loss_weight = top [0]->cpu_diff()[0];
