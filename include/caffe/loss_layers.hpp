@@ -671,7 +671,7 @@ class SigmoidEuclideanLossLayer : public LossLayer<Dtype> {
   virtual void Reshape(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
 
-  virtual inline const char* type() const { return "SigmoidEuclideanLossLayer"; }
+  virtual inline const char* type() const { return "SigmoidEuclideanLoss"; }
 
  protected:
   /// @copydoc SigmoidEuclideanLossLayer
