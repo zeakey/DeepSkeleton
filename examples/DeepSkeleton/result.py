@@ -33,6 +33,6 @@ for i in range(nimgs):
     out4 = net.blobs['dsn4-out'].data[0][0,:,:]
     out5 = net.blobs['dsn5-out'].data[0][0,:,:]
     fuse = net.blobs['fuse-out'].data[0][0,:,:]
-    scipy.io.savemat(save_dir + imgs[i][0:-4],dict({'E':1-fuse/fuse.max()}),appendmat=True)
+    scipy.io.savemat(save_dir + imgs[i][0:-4],dict({'sk':1-fuse/fuse.max()}),appendmat=True)
     scipy.misc.imsave(save_dir + imgs[i],1-fuse/fuse.max())
     print imgs[i]+"   ("+str(i+1)+" of "+str(nimgs)+")    saved"
