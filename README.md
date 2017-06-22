@@ -18,7 +18,7 @@ code for our [CVPR2016](http://cvpr2016.thecvf.com/) paper "**Object Skeleton Ex
 * Our new dataset [*SK506*](http://7xocv2.dl1.z0.glb.clouddn.com/sk506.tar.gz)
 
 ### New dataset
-We release our new larger dataset on Object Skeleton [SK-LARGE](https://shucv.github.io/SK-LARGE/).
+We release our new larger dataset on Object Skeleton [SK-LARGE](http://zhaok.xyz/sk-large).
 
 Code base on [*caffe*](http://caffe.berkeleyvision.org/)
 
