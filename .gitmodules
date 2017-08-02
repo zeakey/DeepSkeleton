@@ -1,0 +1,3 @@
+[submodule "skeval"]
+	path = skeval
+	url = https://github.com/luan-g/skeval.git
