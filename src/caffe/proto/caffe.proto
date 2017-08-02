@@ -385,6 +385,7 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+  optional RescaleParameter rescale_param = 141;
 }
 
 // Message that stores parameters used to apply transformation
@@ -576,6 +577,11 @@ message EmbedParameter {
   optional FillerParameter weight_filler = 4; // The filler for the weight
   optional FillerParameter bias_filler = 5; // The filler for the bias
 
+}
+
+message RescaleParameter {
+  // receptive field
+  required uint32 rf = 1 [default=1];
 }
 
 // Message that stores parameters used by ExpLayer
